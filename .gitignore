@@ -1,0 +1,7 @@
+# create/overwrite .gitignore at your project root (run this if it's missing or incomplete)
+echo "node_modules/
+.env
+Backend/.env
+Frontend/.env
+dist/
+.DS_Store" > .gitignore
