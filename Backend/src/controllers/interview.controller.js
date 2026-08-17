@@ -76,6 +76,12 @@ function validateObjectId(id, label = "resource id") {
     }
 }
 
+function validateText(value, label, maxLength) {
+    if (value.length > maxLength) {
+        throw createHttpError(400, `${label} must be ${maxLength} characters or fewer`)
+    }
+}
+
 /**
  * @name generateInterViewReportController
  * @description generate interview report from resume, self description and job description
@@ -90,6 +96,11 @@ async function generateInterViewReportController(req, res) {
     if (!jobDescription) {
         throw createHttpError(400, "Job description is required")
     }
+
+    validateText(jobDescription, "Job description", 20000)
+    validateText(selfDescription, "Self description", 5000)
+    validateText(jobTitle, "Job title", 200)
+    validateText(company, "Company", 200)
 
     const resume = await extractResumeText(req)
 

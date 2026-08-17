@@ -24,6 +24,16 @@ const REPORT_MODELS = ["gemini-3-flash-preview", "gemini-2.5-flash"]
 const RETRYABLE_STATUS_CODES = new Set([429, 500, 503, 504])
 const MAX_RETRIES_PER_MODEL = 3
 const BASE_RETRY_DELAY_MS = 1000
+const AI_TIMEOUT_MS = 60000
+
+function withTimeout(promise, timeoutMs = AI_TIMEOUT_MS, message = "AI request timed out") {
+    let timeoutId
+    const timeout = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => reject(createHttpError(504, message)), timeoutMs)
+    })
+
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timeoutId))
+}
 
 function sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms))
@@ -296,13 +306,13 @@ ${jobDescription}
     for (const model of REPORT_MODELS) {
         for (let attempt = 1; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
             try {
-                const response = await getAiClient().models.generateContent({
+                const response = await withTimeout(getAiClient().models.generateContent({
                     model,
                     contents: prompt,
                     config: {
                         responseMimeType: "application/json",
                     }
-                })
+                }), AI_TIMEOUT_MS, "Interview report generation timed out")
 
                 const parsedText = await parseModelJson(response)
                 const normalizedReport = normalizeInterviewReport(parsedText, jobDescription)
@@ -394,13 +404,13 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
                         The resume should not be so lengthy, it should ideally be 1-2 pages long when converted to PDF. Focus on quality rather than quantity and make sure to include all the relevant information that can increase the candidate's chances of getting an interview call for the given job description.
                     `
 
-    const response = await getAiClient().models.generateContent({
+    const response = await withTimeout(getAiClient().models.generateContent({
         model: "gemini-3-flash-preview",
         contents: prompt,
         config: {
             responseMimeType: "application/json",
         }
-    })
+    }), AI_TIMEOUT_MS, "Resume generation timed out")
 
 
     const jsonContent = await parseModelJson(response)

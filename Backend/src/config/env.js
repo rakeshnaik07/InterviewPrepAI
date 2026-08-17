@@ -5,7 +5,10 @@ const requiredEnvVars = [
 ]
 
 function validateEnv() {
-    const missing = requiredEnvVars.filter((key) => !process.env[key])
+    const required = process.env.NODE_ENV === 'production'
+        ? [...requiredEnvVars, 'FRONTEND_ORIGIN', 'NODE_ENV']
+        : requiredEnvVars
+    const missing = [...new Set(required)].filter((key) => !process.env[key])
 
     if (missing.length > 0) {
         throw new Error(`Missing required environment variables: ${missing.join(", ")}`)

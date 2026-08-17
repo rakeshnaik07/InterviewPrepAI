@@ -3,6 +3,7 @@ const authMiddleware = require("../middlewares/auth.middleware")
 const interviewController = require("../controllers/interview.controller")
 const upload = require("../middlewares/file.middleware")
 const asyncHandler = require("../utils/asyncHandler")
+const { reportRateLimit, resumePdfRateLimit } = require('../middlewares/rate-limit.middleware')
 
 const interviewRouter = express.Router()
 
@@ -13,7 +14,7 @@ const interviewRouter = express.Router()
  * @description generate new interview report on the basis of user self description,resume pdf and job description.
  * @access private
  */
-interviewRouter.post("/", asyncHandler(authMiddleware.authUser), upload.single("resume"), asyncHandler(interviewController.generateInterViewReportController))
+interviewRouter.post("/", reportRateLimit, asyncHandler(authMiddleware.authUser), upload.single("resume"), asyncHandler(interviewController.generateInterViewReportController))
 
 /**
  * @route GET /api/interview/report/:interviewId
@@ -36,7 +37,7 @@ interviewRouter.get("/", asyncHandler(authMiddleware.authUser), asyncHandler(int
  * @description generate resume pdf on the basis of user self description, resume content and job description.
  * @access private
  */
-interviewRouter.post("/resume/pdf/:interviewReportId", asyncHandler(authMiddleware.authUser), asyncHandler(interviewController.generateResumePdfController))
+interviewRouter.post("/resume/pdf/:interviewReportId", resumePdfRateLimit, asyncHandler(authMiddleware.authUser), asyncHandler(interviewController.generateResumePdfController))
 
 
 

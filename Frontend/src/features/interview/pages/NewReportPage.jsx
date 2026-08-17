@@ -4,7 +4,7 @@ import axiosInstance from "../../../api/axiosInstance";
 
 const NewReportPage = () => {
   const navigate = useNavigate();
-  const maxResumeSize = 5 * 1024 * 1024;
+  const maxResumeSize = 3 * 1024 * 1024;
 
   const [jobDescription, setJobDescription] = useState("");
   const [jobTitle, setJobTitle] = useState("");
@@ -33,7 +33,7 @@ const NewReportPage = () => {
 
     if (file.size > maxResumeSize) {
       setResumeFile(null);
-      setFileError("Resume must be 5 MB or smaller.");
+      setFileError("Resume must be 3 MB or smaller.");
       e.target.value = "";
       return;
     }
@@ -239,7 +239,7 @@ const NewReportPage = () => {
 
           <div className="flex flex-col gap-2">
             <label htmlFor="resume" className="text-sm font-medium">
-              Resume <span className="text-[#1c1a17]/40">(optional, PDF up to 5 MB)</span>
+              Resume <span className="text-[#1c1a17]/40">(optional, PDF up to 3 MB)</span>
             </label>
             <label
               htmlFor="resume"
